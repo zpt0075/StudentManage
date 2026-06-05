@@ -1,8 +1,16 @@
-﻿import java.util.ArrayList;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
 
 public class Function {
     Scanner sc = new Scanner(System.in);
+
+    // 在构造方法里调用 loadData，一启动就加载
+    public Function() {
+        loadData(); //启动加载
+    }
 
     //储存学生数据
     ArrayList<Student> students = new ArrayList<>();
@@ -23,6 +31,7 @@ public class Function {
                 System.out.println("学号重复，请重新输入：");
                 continue;
             }
+
             break;
         }
 
@@ -55,8 +64,10 @@ public class Function {
             }
             break;
         }
+
         System.out.println("===== 添加学生 =====");
         students.add(student);//将学生对象添加到列表当中
+        saveData();
     }
 
     // System.out.println("2.查看所有学生");
@@ -72,26 +83,27 @@ public class Function {
 
     //System.out.println("3.按学号查找学生");
     public void lookStudent() {
-            System.out.println("===== 按学号查找学生 =====");
-            while (true) {
-                boolean flag = false;//学号不存在就false
-                System.out.println("请输入学号：");
-                String num = sc.next();
+        System.out.println("===== 按学号查找学生 =====");
+        while (true) {
+            String number = sc.next();
+            boolean flag = checkNumber(number);
+            if (flag) {
+                //存在就打印学生信息
                 for (int i = 0; i < students.size(); i++) {
-                   if (num.equals(students.get(i).getNumber())) {
-                    //输入的学号在列表中存在，并且打印出来
-                    System.out.println(students.get(i));
-                    flag = true;
-                    break;
+                    if (students.get(i).getNumber().equals(number)) {
+                        System.out.println("学号\t" + "姓名\t" + "年龄\t" + "成绩");
+                        System.out.println(students.get(i));
+                        break;
+                    }
+
                 }
-            }
-            if (!flag) {
-                System.out.println("查询失败，请重新输入！！！");
+
+            } else if (!flag) {
+                System.out.println("学号不存在，请重新输入！！！");
                 continue;
             }
             break;
         }
-
         System.out.println("===== 按学号查找学生 =====");
         System.out.println(" ");
     }
@@ -99,30 +111,53 @@ public class Function {
     //System.out.println("4.修改学生成绩");
     public void setStudents() {
         System.out.println("===== 修改成绩 =====");
-        System.out.println("请输入要修改成绩学生的学号：");
-        String num = sc.next();
-        for (int i = 0; i < students.size(); i++) {
-            if (num.equals(students.get(i).getNumber())) {
-                System.out.println("请输入修改后的成绩：");
-                students.get(i).setScore(sc.nextInt());
+        while (true) {
+            System.out.println("请输入要修改成绩学生的学号：");
+            String num = sc.next();
+            boolean flag = checkNumber(num);
+            if (flag) {
+                for (int i = 0; i < students.size(); i++) {
+                    if (num.equals(students.get(i).getNumber())) {
+                        System.out.println("请输入修改后的成绩：");
+                        students.get(i).setScore(sc.nextInt());
+                    }
+                }
+            } else if (!flag) {
+                System.out.println("学号不存在，请重新输入！！！");
+                continue;
             }
+            break;
         }
+
         System.out.println("===== 修改成绩 =====");
         System.out.println(" ");
+        saveData();
     }
 
     //  System.out.println("5.删除学生");
     public void delStudents() {
         System.out.println("===== 删除学生 =====");
-        System.out.println("请输入要删除学生的学号：");
-        String num = sc.next();
-        for (int i = 0; i < students.size(); i++) {
-            if (num.equals(students.get(i).getNumber())) {
-                students.remove(i);
+        while (true) {
+            System.out.println("请输入要删除学生的学号：");
+            String num = sc.next();
+            boolean flag = checkNumber(num);
+            if (flag) {
+                for (int i = 0; i < students.size(); i++) {
+                    if (num.equals(students.get(i).getNumber())) {
+                        students.remove(i);
+                    }
             }
+            } else if (!flag) {
+                System.out.println("学号不存在，请重新输入！！！");
+                continue;
+            }
+
+            break;
         }
+
         System.out.println("===== 删除学生 =====");
         System.out.println(" ");
+        saveData();
     }
 
     //System.out.println("6.按成绩从高到低排序");
@@ -154,10 +189,44 @@ public class Function {
         for (int i = 0; i < students.size(); i++) {
             if (number.equals(students.get(i).getNumber())) {
                 flag = true; //学号已存在
+                 break;
             }
         }
         return flag;
     }
+    
+    //保存数据到本地
+    public void saveData() {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream("student.data")
+            );
+            oos.writeObject(students); //把整个ArrayList 写成文件
+            oos.close();
+        }catch (Exception e) {
+            System.out.println("保存失败："+e.getMessage());
+        }
+    }
+
+    //从文件加载数据
+    public void loadData() {
+        File file = new File("student.data");
+        if (!file.exists()) {
+            return; //第一次运行，没有存档，直接跳过
+        }
+        try{
+            ObjectInputStream ois =new ObjectInputStream(
+                    new FileInputStream(file)
+            );
+            students = (ArrayList<Student>) ois.readObject(); //读回来
+            ois.close();
+        }catch (Exception e) {
+            System.out.println("加载失败：" +e.getMessage());
+        }
+    }
 
 
 }
+
+
+
