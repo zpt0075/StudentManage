@@ -1,15 +1,14 @@
-# 学生管理系统 — 项目文档
+﻿# 学生管理系统 — 项目文档
 
 > 一个 Java 命令行学生管理系统  
 > 开发语言：Java  
-> 开发环境：IntelliJ IDEA  
-> 作者：自学中
+> 开发环境：IntelliJ IDEA
 
 ---
 
 ## 一、项目概述
 
-命令行交互的学生管理系统，用 ArrayList 存储数据，实现学生的增删改查和排序功能。
+命令行交互的学生管理系统，用 ArrayList 存储数据，实现学生的增删改查、排序和输入校验功能。
 
 适合 Java 初学者练习：类与对象、集合框架、循环、条件判断、Scanner 输入。
 
@@ -21,11 +20,10 @@
 Student/
 ├── src/
 │   ├── App.java              # 入口，启动程序
-│   ├── StudentManager.java   # 菜单显示 + 用户交互
-│   ├── Function.java         # 七个功能的实现
+│   ├── StudentManager.java   # 菜单循环 + 用户交互
+│   ├── Function.java         # 七个功能 + 校验方法
 │   └── Student.java          # 学生类定义
-├── README.md                 # 项目文档
-└── Student.iml               # IntelliJ 项目文件
+└── README.md                 # 项目文档
 `
 
 ---
@@ -34,27 +32,28 @@ Student/
 
 ### 1. App.java — 入口
 
-`
-public class App {
-    public static void main(String[] args) {
-        StudentManager sm = new StudentManager();
-        sm.display();
-    }
+只做一件事：创建 StudentManager 对象，调用 display() 启动菜单。
+
+`java
+public static void main(String[] args) {
+    StudentManager sm = new StudentManager();
+    sm.display();
 }
 `
 
-只做一件事：创建 StudentManager 对象，调用 display() 启动菜单。
-
 ### 2. StudentManager.java — 菜单管理
 
-`
-public void display()
-`
+用 while(true) 循环反复显示菜单，switch 读用户输入调用对应方法，每次执行完打印一个空行方便看。
 
-- 用 while(true) 循环显示菜单
-- 用 switch 读取用户输入，调用 Function 里的对应方法
-- 选 7 退出时 
-eturn 结束程序
+| 输入 | 执行 |
+|------|------|
+| 1 | function.addStudent() |
+| 2 | function.displayStudent() |
+| 3 | function.lookStudent() |
+| 4 | function.setStudents() |
+| 5 | function.delStudents() |
+| 6 | function.sortStudents() |
+| 7 | 打印"感谢使用" → return 结束 |
 
 ### 3. Student.java — 学生类
 
@@ -65,21 +64,21 @@ eturn 结束程序
 | age | int | 年龄 |
 | score | double | 成绩 |
 
-包含：构造方法（空参 + 全参）、getter / setter、toString()
+包含：空参构造、全参构造、getter/setter、toString()。
 
 ### 4. Function.java — 功能实现
 
+数据存在 ArrayList<Student> students 里。
+
 | 方法 | 功能 |
 |------|------|
-| addStudent() | 添加学生 |
+| addStudent() | 添加学生（含输入校验） |
 | displayStudent() | 查看所有学生 |
 | lookStudent() | 按学号查找 |
 | setStudents() | 修改成绩 |
 | delStudents() | 删除学生 |
 | sortStudents() | 按成绩排序 |
-
-所有数据存在 ArrayList<Student> students 里。  
-每个方法内部自己用 Scanner 读用户输入，自己操作 ArrayList。
+| checkNumber() | 判断学号是否重复（被 addStudent 调用） |
 
 ---
 
@@ -89,87 +88,99 @@ eturn 结束程序
 
 `
 输入：学号、姓名、年龄、成绩
-逻辑：new Student() → set值 → students.add(对象)
+校验：学号不能重复（调 checkNumber 判断）
+      年龄不能为负数
+      成绩必须在 0-100 之间
+      不满足条件就重新输入
 `
+
+校验失败会提示并循环直到输入正确。
 
 ### 2. 查看所有学生
 
 `
-逻辑：for-each 遍历 ArrayList，调用 toString() 打印
-输出格式：学号  姓名  年龄  成绩（制表符对齐）
+逻辑：for-each 遍历 ArrayList，调 toString() 打印
+输出格式：学号  姓名  年龄  成绩
 `
 
 ### 3. 按学号查找
 
 `
 输入：学号
-逻辑：遍历列表，用 equals() 比对学号，匹配就打印
+逻辑：遍历列表用 equals() 比对，找到就打印
+      找不到就提示"学号不存在，查询失败"
 `
 
 ### 4. 修改成绩
 
 `
 输入：学号 + 新成绩
-逻辑：遍历列表，匹配学号 → setScore(新成绩)
+逻辑：遍历列表匹配学号 → setScore(新成绩)
 `
 
 ### 5. 删除学生
 
 `
 输入：学号
-逻辑：遍历列表，匹配学号 → ArrayList.remove(i)
+逻辑：遍历列表匹配学号 → ArrayList.remove(i)
 `
 
 ### 6. 按成绩排序
 
 `
-逻辑：冒泡排序，按成绩从高到低排
-特点：排序在新列表 students1 上进行，不影响原数据
+逻辑：复制一个新列表 students1
+      对新列表做冒泡排序（从高到低）
+      打印排序结果
+特点：不影响原列表的数据顺序
 `
 
 ### 7. 退出
 
 `
-return 直接结束 main 方法
+打印"感谢使用" → return 结束
 `
 
 ---
 
-## 五、运行方式
+## 五、校验逻辑
+
+| 输入 | 规则 | 提示 |
+|------|------|------|
+| 学号 | 不能和已存在的学号重复 | "学号重复，请重新输入" |
+| 年龄 | 不能为负数 | "年龄为负数请重新输入" |
+| 成绩 | 0-100 之间 | "成绩超出范围，请重新输入" |
+
+所有校验都在 while(true) 循环里，输入正确才跳出。
+
+---
+
+## 六、运行方式
 
 ### 方式一：IntelliJ IDEA
 
-打开项目 → 找到 App.java → 右键 Run
+打开 D:\Dev\Java\Student 项目 → 找到 App.java → 右键 Run
 
 ### 方式二：命令行
 
 `ash
-cd src
+cd D:\Dev\Java\Student\src
 javac *.java
 java App
 `
 
 ---
 
-## 六、可以改进的地方
+## 七、版本对比
 
-| 问题 | 现状 | 改进建议 |
-|------|------|----------|
-| 学号重复 | 添加时没检查 | 加个判断，提示学号已存在 |
-| 输入校验 | 没做 | 年龄不能负数、成绩 0-100 限制 |
-| 学号不存在 | 修改/删除/查找时没提示 | 加 flag 标记，找不到就提示 |
-| 数据持久化 | 关程序就没了 | 用文件存，下次启动自动加载 |
-| 界面美观 | 纯文字 | 加分隔线、颜色区分 |
+| 版本 | 变化 |
+|------|------|
+| v1 | 基础七功能，无校验 |
+| v2（当前） | 加学号重复检查、年龄/成绩校验、查找失败提示 |
 
 ---
 
-## 七、开发过程
+## 八、可以继续改进
 
-按以下顺序分步完成，每一步都能独立测试：
-
-`
-1. Student 类 → 2. 菜单循环 → 3. 添加 → 4. 查看
-→ 5. 查找 → 6. 修改 → 7. 删除 → 8. 排序
-`
-
----
+- **修改/删除时找不学号**：现在没有提示，可以加 flag 标记
+- **数据持久化**：关程序数据就没了，可以用文件或数据库存
+- **界面美化**：纯文字，可以加颜色或者用表格对齐

@@ -1,0 +1,14 @@
+﻿# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# 编译输出
+target/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
