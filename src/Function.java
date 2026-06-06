@@ -6,10 +6,10 @@ import java.io.*;
 
 public class Function {
     Scanner sc = new Scanner(System.in);
-
+    LocalData localData = new LocalData();
     // 在构造方法里调用 loadData，一启动就加载
     public Function() {
-        loadData(); //启动加载
+        students = localData.loadData();
     }
 
     //储存学生数据
@@ -65,9 +65,9 @@ public class Function {
             break;
         }
 
-        System.out.println("===== 添加学生 =====");
+        System.out.println("===== 添加学生成功 =====");
         students.add(student);//将学生对象添加到列表当中
-        saveData();
+        localData.saveData(students);
     }
 
     // System.out.println("2.查看所有学生");
@@ -129,9 +129,9 @@ public class Function {
             break;
         }
 
-        System.out.println("===== 修改成绩 =====");
+        System.out.println("===== 修改成绩成功 =====");
         System.out.println(" ");
-        saveData();
+        localData.saveData(students);
     }
 
     //  System.out.println("5.删除学生");
@@ -155,9 +155,9 @@ public class Function {
             break;
         }
 
-        System.out.println("===== 删除学生 =====");
+        System.out.println("===== 删除学生成功 =====");
         System.out.println(" ");
-        saveData();
+        localData.saveData(students);
     }
 
     //System.out.println("6.按成绩从高到低排序");
@@ -195,35 +195,7 @@ public class Function {
         return flag;
     }
     
-    //保存数据到本地
-    public void saveData() {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(
-                    new FileOutputStream("student.data")
-            );
-            oos.writeObject(students); //把整个ArrayList 写成文件
-            oos.close();
-        }catch (Exception e) {
-            System.out.println("保存失败："+e.getMessage());
-        }
-    }
 
-    //从文件加载数据
-    public void loadData() {
-        File file = new File("student.data");
-        if (!file.exists()) {
-            return; //第一次运行，没有存档，直接跳过
-        }
-        try{
-            ObjectInputStream ois =new ObjectInputStream(
-                    new FileInputStream(file)
-            );
-            students = (ArrayList<Student>) ois.readObject(); //读回来
-            ois.close();
-        }catch (Exception e) {
-            System.out.println("加载失败：" +e.getMessage());
-        }
-    }
 
 
 }
